@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        class Person{
+            constructor(props){
+                console.log("Person:"+this.props)
+                this.name = props
+            }
+        }
+        class Child extends Person{
+            constructor(props){
+                super(props)
+                console.log("Child:"+this.name)
+            }
+        }
+        let child = new Child("233")
+    </script>
+</body>
+</html>

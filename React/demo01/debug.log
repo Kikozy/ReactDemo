@@ -1,0 +1,3 @@
+[1012/163430.243:ERROR:directory_reader_win.cc(43)] FindFirstFile: 系统找不到指定的路径。 (0x3)
+[1013/170809.289:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\Kikozy\AppData\Local\Microsoft\Edge\User Data\Crashpad\attachments\ef61b9b6-7f3b-47ad-9034-0a52a2f585e2: 系统找不到指定的路径。 (0x3)
+[1013/171517.628:ERROR:directory_reader_win.cc(43)] FindFirstFile: 系统找不到指定的路径。 (0x3)
