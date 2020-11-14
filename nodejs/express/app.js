@@ -1,8 +1,16 @@
 const express = require("express")
-const bodyParser = require("body-Parser")
+const moment = require("moment")
+const bodyParser = require("body-parser")
 const cors = require("cors")
-const cookieParser = require("cookie-Parser")
-
+const cookieParser = require("cookie-parser")
+const mysql = require("mysql")
+let connection = mysql.createConnection({
+  host: "127.0.0.1",
+  user: "root",
+  password: "123456",
+  database: "test"
+})
+connection.connect()
 const app = express()
 //使用跨域
 app.use(cors())
@@ -19,36 +27,17 @@ app.all('*', (req, res, next) => {
     res.header("Content-Type", "application/json;charset=utf-8");
     next();
   });
-  app.post("/login",(req,res)=>{
-      console.log("有用户尝试登录")
-        if(req.body.data.user == "DiaoCan" && req.body.data.pass == "123"){
-            //通过 设置cookie
-            res.cookie("namae",req.body.data.user,{
-                maxAge: 1000*30,
-                signed: true,
-                path: "/"
-            })
-            return res.send({resultCode: 200, resultMsg: '登录成功'})
-        }else{
-            return res.send({resultCode: 400, resultMsg: '登陆失败'})
-        }
+  app.post("/api/tasksList",(req,res)=>{
+    console.log(moment(new Date().valueOf()).format("'YYYY-MM-DD HH:mm:ss'"))
+    connection.query("select * from tasks",function(err,data,fields){
+      if(err)
+      {
+        throw err
+      }else{
+        return res.send((data))
+      }
+    })
+  })
+app.listen(8848,()=>{
+  console.log("runing port: 8848")
 })
-  app.get("/",(req,res)=>{
-    if(!req.signedCookies['namae']){
-        //没有内容
-        res.send("请登录")
-    }else{
-        res.send("欢迎你"+req.signedCookies["namae"])
-    }
-  })
-  app.get("/page2",(req,res)=>{
-    if(!req.signedCookies['namae']){
-        //没有内容
-        res.send("请登录")
-    }else{
-        res.send("欢迎你")
-    }
-  })
-
-app.listen(3000)
-console.log("runing port: 8848")

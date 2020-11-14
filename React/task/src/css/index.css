@@ -1,0 +1,20 @@
+/* 主页的页头 */
+.index-header {
+    background-color: rgba(230, 230, 230,0.9);
+    position: fixed;
+    width: 100%;
+}
+/* 主页中的导航栏 */
+.index-header-nav {
+    background-color: initial;
+    margin: auto;
+    width: 80%;
+}
+
+.index-nav-item {
+    font-size: 16px;
+}
+/* 主页中的内容区域 */
+.index-conten {
+    width:100%;
+}
