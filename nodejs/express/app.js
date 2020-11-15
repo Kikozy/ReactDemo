@@ -27,17 +27,37 @@ app.all('*', (req, res, next) => {
     res.header("Content-Type", "application/json;charset=utf-8");
     next();
   });
-  app.post("/api/tasksList",(req,res)=>{
-    console.log(moment(new Date().valueOf()).format("'YYYY-MM-DD HH:mm:ss'"))
-    connection.query("select * from tasks",function(err,data,fields){
-      if(err)
-      {
-        throw err
-      }else{
-        return res.send((data))
+  app.post("/api/tasksList/soon",(req,res)=>{
+    /*
+    请求数据:
+      - 查询即将到来的任务
+    */
+    let nowTime = moment(new Date().valueOf()).format("'HH:mm:ss'")
+    let soonSql = `select * from tasks where tasks_day_tick_time>${nowTime}`
+    //console.log(moment(new Date().valueOf()).format("'YYYY-MM-DD HH:mm:ss'"))
+    connection.query(soonSql,(err,data,fields)=>{
+      if(err) throw err
+      else{
+        return res.send(data)
       }
     })
   })
+  app.post("/api/tasksList/miss",(req,res)=>{
+    /*
+    请求数据:
+      - 查询已经过期的任务
+    */
+    let nowTime = moment(new Date().valueOf()).format("'HH:mm:ss'")
+    let missSql = `select * from tasks where tasks_day_tick_time<${nowTime}`
+    //console.log(moment(new Date().valueOf()).format("'YYYY-MM-DD HH:mm:ss'"))
+    connection.query(missSql,(err,data,fields)=>{
+      if(err) throw err
+      else{
+        return res.send(data)
+      }
+    })
+  })
+
 app.listen(8848,()=>{
   console.log("runing port: 8848")
 })

@@ -1,7 +1,7 @@
 import React,{Component,Fragment} from "react"
 import axios from "axios"
 import { Card, Col, Row , Switch ,Progress, Statistic ,Button,Badge} from 'antd';
-import {DeleteFilled} from '@ant-design/icons';
+import {SettingOutlined,EditOutlined,EllipsisOutlined} from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import './main.css'
 const { Countdown } = Statistic;
@@ -10,36 +10,40 @@ class Home extends Component{
     constructor(props){
         super(props)
         this.state={
-            tasksList: []
+            soonTasks: [],
+            missTasks: []
         }
-        this.taskSate = this.taskSate.bind(this)
+        this.taskRunAndStop = this.taskRunAndStop.bind(this)
     }
     
     componentDidMount(){
-        axios.post("http://localhost:8848/api/tasksList")
+        axios.post("http://localhost:8848/api/tasksList/soon")
         .then((res)=>{
-            this.setState({
-                tasksList: res.data
-            },()=>{
-                console.log("数据更新完毕")
-            }) 
+            this.setState({soonTasks: res.data})
+        })
+        .catch((err)=>{
+            console.log(err)
+        })
+        axios.post("http://localhost:8848/api/tasksList/miss")
+        .then((res)=>{
+            this.setState({missTasks: res.data},()=>{console.log(this.state)})
         })
         .catch((err)=>{
             console.log(err)
         })
     }
-    taskSate(index){
+    //控制任务暂停还是运行
+    taskRunAndStop(index){
         //任务状态
-        let now = this.state.tasksList[index].tasks_stop
-        now===1?now=0:now=1
-        let newState = this.state.tasksList
-        newState[index].tasks_stop = now
+        let tasks_stop = this.state.soonTasks[index].tasks_stop
+        tasks_stop===1?tasks_stop=0:tasks_stop=1
+        let newState = this.state.soonTasks
+        newState[index].tasks_stop = tasks_stop
         this.setState({
-            taskSate: newState
+            soonTasks: newState,
         },()=>{
             console.log("数据已经发生更改")
         })
-        console.log(this.state.tasksList[index].tasks_stop)
     }
     render(){
         return(
@@ -47,23 +51,22 @@ class Home extends Component{
                 {/* 图表展示区域*/}
                 <div className="charts-area">
                 </div>
-                {/* 最近的任务 最多显示 6条*/}
+                {/* 所有任务状态*/}
                 <div className="index-near-task">
                     <Row gutter={[5,5]}>
-                        {console.log(this.state.tasksList)}
-                        {this.state.tasksList.map((value,index)=>{
+                        {this.state.soonTasks.map((value,index)=>{
                             return(
                                 //是暂停任务
                                 value.tasks_stop === 0?<Col span={8} key={index+value}>
-                                    <Card title={ <Badge status="error"
+                                    <Card dis title={ <Badge status="default"
                                     text={value.tasks_name} />}
                                     bordered={false}
-                                    extra={<Switch checkedChildren="开始" unCheckedChildren="暂停" onChange={()=>{this.taskSate(index)}}></Switch>}>
-                                            <Row gutter={[0,5]}>
-                                                <Col span={5}><Progress type="circle" percent={93} width={70} /> </Col>
-                                                <Col span={5}><Statistic title="打卡次数" value={93} suffix="/ 100" /></Col>
-                                                <Col span={14}><Countdown title="截止时间" value={value.tasks_run_end_time} format="D 天 H 时 m 分 s 秒"/></Col>
-                                        </Row> 
+                                    extra={<Switch checkedChildren="开始" unCheckedChildren="暂停" onChange={()=>{this.taskRunAndStop(index)}}></Switch>}
+                                    >
+                                            <Row gutter={[0,0]}>
+                                                <Col span={12}><Statistic title="打卡次数" value={93} suffix="/ 100" /></Col>
+                                                <Col span={12}><Progress type="circle" percent={93} width={70} /> </Col>
+                                            </Row>
                                     </Card>
                                 </Col>:
                                 //不是暂停任务
@@ -71,7 +74,13 @@ class Home extends Component{
                                 <Card title={ <Badge status="processing"
                                 text={value.tasks_name} />}
                                 bordered={false}
-                                extra={<Switch checkedChildren="开始" unCheckedChildren="暂停" defaultChecked onChange={()=>{this.taskSate(index)}}></Switch>}>
+                                extra={<Switch checkedChildren="开始" unCheckedChildren="暂停" defaultChecked onChange={()=>{this.taskRunAndStop(index)}}></Switch>}
+                                actions={[
+                                    <SettingOutlined key="setting" />,
+                                    <EditOutlined key="edit" />,
+                                    <EllipsisOutlined key="ellipsis" />
+                                  ]}
+                                >
                                         <Row gutter={[5,5]}>
                                             <Col span={8}><Progress type="circle" percent={93} width={70} /></Col>
                                             <Col span={8}><Statistic title="打卡次数" value={93} suffix="/ 100" /></Col>
