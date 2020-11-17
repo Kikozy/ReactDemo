@@ -1,0 +1,7 @@
+/* 每个列的标题 */
+.col-title {
+    width: 100%;
+    height: 35px;
+    text-align: center;
+    line-height: 35px;
+}

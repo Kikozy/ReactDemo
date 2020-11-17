@@ -1,30 +1,45 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Home from "./page/Home"
-import { Layout , Menu } from 'antd';
-import {OrderedListOutlined , CheckCircleOutlined , ClockCircleOutlined} from '@ant-design/icons';
+import { Menu , Row, Col} from 'antd';
+import { BrowserRouter as Router, Route, Link , Switch} from 'react-router-dom'
+import {OrderedListOutlined , ClockCircleOutlined ,EditOutlined} from '@ant-design/icons';
 import 'antd/dist/antd.css';
-import './css/index.css'
-const { Header, Footer, Content} = Layout;
+import Home from "./page/Home"
+import TasksList from "./page/TasksList"
+//import './css/index.css'
 
 
 
 function Index(){
   return(
-    <Layout>
-      <Header className="index-header">
-        <Menu className="index-header-nav"  mode="horizontal">
-          <div className="logo" style={{float:"left"}}>StudyLog</div>
-          <Menu.Item className="index-nav-item" key="task-list" icon={<OrderedListOutlined />}>目标列表</Menu.Item>
-          <Menu.Item className="index-nav-item" key="wc-list" icon={<CheckCircleOutlined />}>完成目标</Menu.Item>
-          <Menu.Item className="index-nav-item" key="time-log" icon={<ClockCircleOutlined />}>时长统计</Menu.Item>
-        </Menu>
-      </Header>
-      <Content className="index-conten">
-        <Home></Home>
-      </Content>
-      <Footer>Footer</Footer>
-    </Layout>
+    <Router>
+      <header>
+        <Row gutter={0}>
+          <Col xs={0} sm={0} md={0} lg={2} xl={2}>留白</Col>
+          <Col xs={24} sm={24} md={24} lg={20} xl={20}>
+            <Menu className="index-header-nav" mode="horizontal">
+              <Menu.Item className="index-nav-item" key="index" icon={<OrderedListOutlined />}><Link to="/">主页</Link></Menu.Item>
+              <Menu.Item className="index-nav-item" key="task-list" icon={<OrderedListOutlined />}><Link to="/TasksList">任务列表</Link></Menu.Item>
+              <Menu.Item className="index-nav-item" key="time-log" icon={<ClockCircleOutlined />}><Link to="/TimeLog">时长统计</Link></Menu.Item>
+              <Menu.Item className="index-nav-item" key="edit-task" icon={<EditOutlined />}><Link to="/EditTasks">编辑任务</Link></Menu.Item>
+            </Menu>
+          </Col>
+          <Col xs={0} sm={0} md={0} lg={2} xl={2}>留白</Col>
+        </Row>
+      </header>
+      <main>
+        <Switch>
+          <Row gutter={0}>
+            <Col xs={0} sm={0} md={0} lg={2} xl={2}></Col>
+            <Col xs={24} sm={24} md={24} lg={20} xl={20}>
+              <Route path="/" exact component={Home}></Route>
+              <Route path="/TasksList" component={TasksList}></Route>
+            </Col>
+            <Col xs={0} sm={0} md={0} lg={2} xl={2}></Col>
+        </Row>
+        </Switch>
+      </main>
+    </Router>
   )
 }
 
