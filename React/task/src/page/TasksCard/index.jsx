@@ -24,17 +24,22 @@ class TasksCard extends Component{
                 tasks_stop: props.tasksData.tasks_stop,
                 //每日签到截止时间
                 tasks_day_tick_time: props.tasksData.tasks_day_tick_time,
-
+                //任务开始执行的时间
+                tasks_run_start_tim: props.tasksData.tasks_run_start_tim,
+                //任务结束执行的时间
+                tasks_run_end_time: props.tasksData.tasks_run_end_time,
+                //完成任务所需要的时间
+                tasks_time_count: props.tasksData.tasks_time_count
         }
         this.state={
-            submitTasksWindowInfo: DataModel,
+            submitTasksWindowInfo: Object.assign({},DataModel),
             submitWindowVisible: false,
-            delTasksWindowInfo: DataModel,
+            delTasksWindowInfo: Object.assign({},DataModel),
             delTasksWindowVisible: false,
-            editTasksWindowInfo: DataModel,
-            editTasksWindowVisible: false
+            editTasksWindowInfo: Object.assign({},DataModel),
+            editTasksWindowVisible: false,
+            editWindowCache: Object.assign({},DataModel)
         }
-        console.log(this.props.tasksData.tasks_day_tick_time)
     }
     //打开提交窗口
     showSubmitTasksWindow=()=>{
@@ -80,25 +85,56 @@ class TasksCard extends Component{
     //展示修改的窗口
     editTasksWindowShow=()=>{
         console.log("打开了修改窗口")
+        console.log(this.state.editTasksWindowInfo)
+        console.log(this.state.editWindowCache)
+        //临时数据源
+        let data = Object.assign({},this.state.editTasksWindowInfo)
         this.setState({
-            editTasksWindowVisible: true
-        },()=>{console.log("打开了修改窗口")})
+            editTasksWindowVisible: true,
+            editWindowCache: data
+        },()=>{console.log("重置了临时数据源")})
     }
     //提交修改
     editTasksWindowOk=()=>{
         console.log("提交修改")
+        this.props.taskEditFun(this.state.editWindowCache)
         this.setState({
-            editTasksWindowVisible: false
+            editTasksWindowVisible: false,
+            editWindowCache: {}
         })
     }
     //取消修改
     editTasksWindowCancel=()=>{
         console.log("取消修改")
+        console.log(this.state.editTasksWindowInfo)
+        console.log(this.state.editWindowCache)
         this.setState({
-            editTasksWindowVisible: false
+            editTasksWindowVisible: false,
+            editWindowCache: {}
+        },()=>{console.log("重置了临时数据")})
+    }
+    //修改窗口中修改任务类型
+    editTasksWindowEditType = type =>{
+        console.log(this.state.editTasksWindowInfo)
+        console.log(this.state.editWindowCache)
+        console.log("你想修改?"+type)
+        let newState = this.state.editWindowCache
+        newState.tasks_type = type
+        this.setState({
+            editWindowCache: newState
+        },()=>{console.log("修改了临时数据  ")})
+    }
+    //修改任务的名字
+    editTasksName = e =>{
+        console.log(e.target.value)
+        let newState = this.state.editWindowCache
+        newState.tasks_name = e.target.value
+        this.setState({
+            editWindowCache: newState
         })
     }
     render(){
+        console.log()
         return(
             <Fragment>
                 <Modal
@@ -106,15 +142,14 @@ class TasksCard extends Component{
                 visible={this.state.submitWindowVisible}
                 onOk={this.submitTasksWindowOk}
                 onCancel={this.submitTasksWindowCancel}
-                okText="提交"
+                okText="签到"
                 cancelText="放弃"
                 >
                     <Descriptions title="" bordered column={{ xxl: 1, xl: 1, lg: 1, md: 1, sm: 1, xs: 2 }}>
                         <Descriptions.Item label="任务名称">{this.state.submitTasksWindowInfo.tasks_name}</Descriptions.Item>
                         <Descriptions.Item label="任务类型">{this.state.submitTasksWindowInfo.tasks_type}</Descriptions.Item>
                         <Descriptions.Item label="上次签到">2018</Descriptions.Item>
-                        <Descriptions.Item label="目标进度">{this.state.submitTasksWindowInfo.tasks_complete_tick}/{this.state.submitTasksWindowInfo.tasks_count}</Descriptions.Item>
-                        <Descriptions.Item label="本次签到时间">2018-04-24 18:00:00</Descriptions.Item>
+                        <Descriptions.Item label="目标要求">{this.props.tasksData.tasks_tick_time}</Descriptions.Item>
                     </Descriptions>
                 </Modal>
                 <Modal
@@ -128,7 +163,7 @@ class TasksCard extends Component{
                     你确定要删除？
                 </Modal>
                 <Modal
-                title={this.state.editTasksWindowInfo.tasks_name}
+                title={this.state.editWindowCache.tasks_name}
                 visible={this.state.editTasksWindowVisible}
                 onOk={this.editTasksWindowOk}
                 onCancel={this.editTasksWindowCancel}
@@ -136,29 +171,52 @@ class TasksCard extends Component{
                 cancelText="算了"
                 >
                     {(()=>{
-                        switch(this.state.editTasksWindowInfo.tasks_type){
+                        switch(this.state.editWindowCache.tasks_type){
                             case "单次任务":
                                 return(
                                     <Descriptions title="" bordered column={{ xxl: 1, xl: 1, lg: 1, md: 1, sm: 1, xs: 1 }}>
-                                        <Descriptions.Item label="任务名称"><Input defaultValue={this.state.editTasksWindowInfo.tasks_name} /></Descriptions.Item>
+                                        <Descriptions.Item label="任务名称"><Input value={this.state.editWindowCache.tasks_name} onChange={this.editTasksName}/></Descriptions.Item>
                                         <Descriptions.Item label="任务类型">
-                                            <Select defaultValue="单次任务" style={{width: "100%"}}>
+                                            <Select defaultValue="单次任务" style={{width: "100%"}} onChange={this.editTasksWindowEditType}>
                                                 <Option value="单次任务">单次任务</Option>
                                                 <Option value="循环计时任务">循环计时任务</Option>
+                                                <Option value="循环计次任务">循环计次任务</Option>
                                             </Select>
                                         </Descriptions.Item>
-                                        <Descriptions.Item label="任务描述"><TextArea placeholder="今天要背完500个单词"></TextArea></Descriptions.Item>
+                                        <Descriptions.Item label="任务描述"><TextArea placeholder={this.state.editWindowCache.tasks_info}></TextArea></Descriptions.Item>
                                         <Descriptions.Item label="执行日期"><DatePicker/></Descriptions.Item>
                                     </Descriptions>
                                 )
                             case "循环计时任务":
                                 return(
                                     <Descriptions title="" bordered column={{ xxl: 1, xl: 1, lg: 1, md: 1, sm: 1, xs: 1 }}>
-                                        <Descriptions.Item label="任务名称">{this.state.editTasksWindowInfo.tasks_name}</Descriptions.Item>
-                                        <Descriptions.Item label="任务类型">{this.state.editTasksWindowInfo.tasks_type}</Descriptions.Item>
-                                        <Descriptions.Item label="上次签到">2018</Descriptions.Item>
-                                        <Descriptions.Item label="目标进度">{this.state.editTasksWindowInfo.tasks_complete_tick}/{this.state.editTasksWindowInfo.tasks_count}</Descriptions.Item>
-                                        <Descriptions.Item label="本次签到时间">2018-04-24 18:00:00</Descriptions.Item>
+                                        <Descriptions.Item label="任务名称"><Input value={this.state.editWindowCache.tasks_name} onChange={this.editTasksName}/></ Descriptions.Item>
+                                        <Descriptions.Item label="任务类型">
+                                            <Select defaultValue="循环计时任务" style={{width: "100%"}} onChange={this.editTasksWindowEditType}>
+                                                <Option value="单次任务">单次任务</Option>
+                                                <Option value="循环计时任务">循环计时任务</Option>
+                                                <Option value="循环计次任务">循环计次任务</Option>
+                                            </Select>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label="任务描述"><TextArea placeholder={this.state.editWindowCache.tasks_info}></TextArea></Descriptions.Item>
+                                        <Descriptions.Item label="执行日期"><DatePicker/></Descriptions.Item>
+                                    </Descriptions>
+                                )
+                            case "循环计次任务":
+                                return(
+                                    <Descriptions title="" bordered column={{ xxl: 1, xl: 1, lg: 1, md: 1, sm: 1, xs: 1 }}>
+                                        <Descriptions.Item label="任务名称"><Input value={this.state.editWindowCache.tasks_name} onChange={this.editTasksName} /></ Descriptions.Item>
+                                        <Descriptions.Item label="任务类型">
+                                            <Select defaultValue="循环计次任务" style={{width: "100%"}} onChange={this.editTasksWindowEditType}>
+                                                <Option value="单次任务">单次任务</Option>
+                                                <Option value="循环计时任务">循环计时任务</Option>
+                                                <Option value="循环计次任务">循环计次任务</Option>
+                                            </Select>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label="任务描述"><TextArea placeholder={this.state.editWindowCache.tasks_info}></TextArea></Descriptions.Item>
+                                        <Descriptions.Item label="目标次数"><Input defaultValue={this.state.editWindowCache.tasks_count} /></Descriptions.Item>
+                                        <Descriptions.Item label="开始日期"><DatePicker/></Descriptions.Item>
+                                        <Descriptions.Item label="结束日期"><DatePicker/></Descriptions.Item>
                                     </Descriptions>
                                 )
                             default:
@@ -183,8 +241,7 @@ class TasksCard extends Component{
                                     >
                                         <Row gutter={[0,0]}>
                                             <Col span={24} style={{height: "50px"}}><span>{this.props.tasksData.tasks_info}</span></Col>
-                                            <Col xs={8} sm={8} md={12} lg={12} xl={8}><Statistic title="任务打卡次数" value={93} suffix="/ 100" /></Col>
-                                            <Col xs={8} sm={8} md={12} lg={12} xl={16}><Countdown title="任务截止时间" value={deadline} format="D 天 H 时 m 分"/></Col>
+                                            <Col span={24}><Countdown title="任务截止时间" value={new Date(new Date().toLocaleDateString()+" 24:00:00").valueOf()} format="D 天 H 时 m 分"/></Col>
                                         </Row>
                                     </Card>
                                 )
@@ -202,8 +259,8 @@ class TasksCard extends Component{
                                         >
                                             <Row gutter={[5,5]}>
                                                 <Col span={24}></Col>
-                                                <Col span={12}><Statistic title="时间要求" value={this.props.tasksData.tasks_time_log} suffix={"/"+this.props.tasksData.tasks_tick_time+"小时"} /></Col>
-                                                <Col span={12}><Countdown title="今日截止时间" value={deadline}/></Col>
+                                                <Col span={12}><Statistic title="时间要求" value={this.props.tasksData.tasks_tick_time+"小时"} /></Col>
+                                                <Col span={12}><Countdown title="今日截止时间" value={new Date(new Date().toLocaleDateString()+" "+this.props.tasksData.tasks_day_tick_time).valueOf()}/></Col>
                                                 <Col span={24}><Progress strokeColor={{from: '#108ee9',to: '#87d068'}} percent={10} status="active"/></Col>
                                             </Row> 
                                         </Card>
@@ -215,9 +272,9 @@ class TasksCard extends Component{
                                         extra={<Switch checkedChildren="开始" unCheckedChildren="暂停" onChange={()=>{this.props.taskRunAndStopFun({path:this.props.tasksIndex, name: this.props.tasksData.tasks_name, user: "DiaoCan",state: this.props.tasksData.tasks_stop})}}></Switch>}
                                         >
                                             <Row gutter={[5,5]}>
-                                                <Col xs={18} sm={16} md={14} lg={14} xl={14}><Statistic title="任务打卡次数" value={this.props.tasksData.tasks_time_log} suffix={"/"+this.props.tasksData.tasks_time_count+"小时"}/></Col>
+                                                <Col xs={18} sm={16} md={14} lg={14} xl={14}><Statistic title="任务时间要求" value={this.props.tasksData.tasks_time_log} suffix={"/"+this.props.tasksData.tasks_time_count+"小时"}/></Col>
                                                 <Col xs={6} sm={8} md={10} lg={10} xl={10}><Progress type="circle" percent={90} width={70}/></Col>
-                                                <Col span={24}><Countdown title="任务截止时间" value={deadline} format="D 天 H 时 m 分 s 秒" /></Col>
+                                                <Col span={24}><Countdown title="任务截止时间" value={deadline} format="D 天 H 时 m 分" /></Col>
                                             </Row>
                                         </Card>
                                     )
@@ -237,7 +294,7 @@ class TasksCard extends Component{
                                             <Row gutter={[5,5]}>
                                             <Col span={24}></Col>
                                                 <Col span={12}><Statistic title="打卡次数" value={93} suffix="/ 100" /></Col>
-                                                <Col span={12}><Countdown title="今日签到时间" value={deadline}/></Col>
+                                                <Col span={12}><Countdown title="今日签到时间" value={new Date(new Date().toLocaleDateString()+" "+this.props.tasksData.tasks_day_tick_time).valueOf()}/></Col>
                                                 <Col span={24}><Progress strokeColor={{from: '#108ee9',to: '#87d068'}} percent={10} status="active"/></Col>
                                             </Row>
                                         </Card>
@@ -251,7 +308,7 @@ class TasksCard extends Component{
                                             <Row gutter={[5,5]}>
                                                 <Col xs={18} sm={16} md={14} lg={14} xl={14}><Statistic title="任务打卡次数" value={93} suffix="/ 100" /></Col>
                                                 <Col xs={6} sm={8} md={10} lg={10} xl={10}><Progress type="circle" percent={90} width={70}/></Col>
-                                                <Col span={24}><Countdown title="任务截止时间" value={deadline} format="D 天 H 时 m 分 s 秒" /></Col>
+                                                <Col span={24}><Countdown title="任务截止时间" value={deadline} format="D 天 H 时 m 分" /></Col>
                                             </Row>
                                         </Card>
                                     )

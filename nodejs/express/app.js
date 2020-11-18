@@ -35,7 +35,6 @@ app.post("/api/tasksList/soon",(req,res)=>{
   */
   let nowTime = moment(new Date().valueOf()).format("'HH:mm:ss'")
   let soonSql = `SELECT * from tasks WHERE tasks_day_tick_time>${nowTime}`
-  //console.log(moment(new Date().valueOf()).format("'YYYY-MM-DD HH:mm:ss'"))
   connection.query(soonSql,(err,data)=>{
     if(err) throw err
     else{
@@ -75,7 +74,10 @@ app.post("/api/tasksEdit/taskRunAndStopState",(req,res)=>{
     }
   })
 })
-
+app.post("/api/tasksEdit/taskEdit",(req,res)=>{
+  console.log(req.body.tasks_name)
+  res.send("请求成功")
+})
 app.listen(8848,()=>{
   console.log("runing port: 8848")
 })

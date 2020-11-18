@@ -59,6 +59,15 @@ class Home extends Component{
             console.log("无法更改任务运行状态"+err)
         })
     }
+    taskEditUpdate = data =>{
+        axios.post("http://localhost:8848/api/tasksEdit/taskEdit",data)
+        .then((res)=>{
+            console.log("更新成功")
+        })
+        .catch((err)=>{
+            console.log("更新错误")
+        })
+    }
     render(){
         return(
             <Fragment>
@@ -76,7 +85,7 @@ class Home extends Component{
                                         <Row gutter={[{ xs: 0, sm: 5, md: 5, lg:10, xl: 10},{ xs: 5, sm: 5, md: 5, lg:10, xl: 10}]}>
                                             {this.state.soonTasks.map((value,index)=>{
                                                 return(
-                                                    <ButtonCard tasksData={value} tasksIndex={index} taskRunAndStopFun={this.taskRunAndStop} key={value.tasks_name+index}></ButtonCard>
+                                                    <ButtonCard tasksData={value} tasksIndex={index} taskRunAndStopFun={this.taskRunAndStop} taskEditFun={this.taskEditUpdate} key={value.tasks_name+index}></ButtonCard>
                                                 )
                                             })}
                                         </Row>
