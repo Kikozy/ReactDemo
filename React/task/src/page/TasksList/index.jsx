@@ -1,6 +1,7 @@
 import React,{Component , Fragment} from "react"
-import {Button, Row, Col , Card ,Statistic ,Progress ,Badge} from "antd"
+import {Button, Row, Col , Card ,Statistic ,Progress ,Badge } from "antd"
 import echarts from 'echarts/lib/echarts';
+
 import  'echarts/lib/chart/bar';
 import {PlusSquareFilled} from '@ant-design/icons'
 import "./main.css"
