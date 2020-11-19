@@ -1,0 +1,7 @@
+.task-list-box{
+ height: 500px;
+}
+/* 单个任务 */
+.task-card-item{
+    height: 100%;
+}
